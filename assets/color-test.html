@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offline Screen Color Test</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { height: 100%; margin: 0; }
+  body { background: #000; color: #eee; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { min-height: 100%; display: flex; flex-direction: column; }
+  #bar { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; padding: .6rem .8rem; background: #16181d; border-bottom: 1px solid #2c2f36; font-size: .95rem; }
+  #bar button { font: inherit; padding: .45rem .8rem; border: 1px solid #3a3f49; border-radius: 8px; background: #20232a; color: #eee; cursor: pointer; }
+  #bar button:hover { background: #2a2e36; }
+  #name { margin-left: auto; font-variant-numeric: tabular-nums; opacity: .8; }
+  #stage { flex: 1; }
+  #hint { padding: .6rem .8rem; background: #16181d; border-top: 1px solid #2c2f36; font-size: .85rem; color: #bdbfc6; line-height: 1.45; }
+  #hint b { color: #eee; }
+  sample { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <div id="bar">
+    <button id="prev">&#8592; Back</button>
+    <button id="next">Next &#8594;</button>
+    <button id="full">Fullscreen</button>
+    <span id="name">White</span>
+  </div>
+  <div id="stage" title="Click to advance"></div>
+  <div id="hint">
+    <b>How to use it:</b> click Next (or the screen, or the &rarr; key) to step through solid test colors.
+    <b>Dead pixels:</b> look at White, Red, Green, and Blue &mdash; one bad dot stands out against like colors.
+    <b>Burn-in:</b> stare at Mid gray and Dark gray for 30 seconds &mdash; ghost keyboards, status bars, and logo shadows appear on worn OLED panels.
+    <b>Touch zones:</b> on touchscreens, drag a note or icon across every edge and corner of White. Save this file to a USB stick and it works on any computer.
+  </div>
+</main>
+<script>
+(function () {
+  var COLORS = [
+    ["White", "#ffffff"],
+    ["Light gray", "#c9c9c9"],
+    ["Mid gray", "#808080"],
+    ["Dark gray", "#2e2e2e"],
+    ["Black", "#000000"],
+    ["Red", "#ff0000"],
+    ["Green", "#00ff00"],
+    ["Blue", "#0000ff"]
+  ];
+  var index = 0;
+  var stage = document.getElementById("stage");
+  var name = document.getElementById("name");
+  function show() {
+    stage.style.background = COLORS[index][1];
+    name.textContent = COLORS[index][0] + "  (" + (index + 1) + "/" + COLORS.length + ")";
+  }
+  function step(delta) {
+    index = (index + delta + COLORS.length) % COLORS.length;
+    show();
+  }
+  document.getElementById("next").addEventListener("click", function () { step(1); });
+  document.getElementById("prev").addEventListener("click", function () { step(-1); });
+  document.getElementById("full").addEventListener("click", function () {
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
+  });
+  stage.addEventListener("click", function () { step(1); });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "ArrowRight" || event.key === " ") { step(1); event.preventDefault(); }
+    if (event.key === "ArrowLeft") { step(-1); event.preventDefault(); }
+  });
+  show();
+})();
+</script>
+</body>
+</html>
